@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure GPT-4 Chatbot</title>
+    <title>GPT Chatbot with Model Selection</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -35,9 +35,19 @@
             background: linear-gradient(90deg, #1e90ff, #6a5acd);
             color: #ffffff;
             padding: 15px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header select {
+            background: #0d1117;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
         }
 
         .chat-history {
@@ -135,7 +145,11 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            GPT-4 Chatbot
+            <span>GPT Chatbot</span>
+            <select id="modelSelector">
+                <option value="gpt-3.5-turbo">GPT-3.5 (Turbo)</option>
+                <option value="gpt-4">GPT-4</option>
+            </select>
         </div>
         <div id="chatHistory" class="chat-history"></div>
         <div class="chat-input">
@@ -151,6 +165,7 @@
         async function sendMessage() {
             const userInput = document.getElementById("userInput");
             const chatHistory = document.getElementById("chatHistory");
+            const selectedModel = document.getElementById("modelSelector").value;
 
             if (!userInput.value.trim()) return;
 
@@ -164,7 +179,7 @@
             const botTyping = appendMessage("Typing...", "bot-message");
 
             try {
-                const response = await fetchWithRetry(userMessage);
+                const response = await fetchResponse(selectedModel);
                 botTyping.remove();
                 appendMessage(response, "bot-message");
                 conversationHistory.push({ role: "assistant", content: response });
@@ -174,7 +189,7 @@
             }
         }
 
-        async function fetchWithRetry(prompt, retries = 3) {
+        async function fetchResponse(model) {
             try {
                 const response = await fetch("https://api.openai.com/v1/chat/completions", {
                     method: "POST",
@@ -183,7 +198,7 @@
                         Authorization: `Bearer ${API_KEY}`,
                     },
                     body: JSON.stringify({
-                        model: "gpt-4",
+                        model: model,
                         messages: conversationHistory,
                         max_tokens: 200,
                         temperature: 0.7,
@@ -192,22 +207,12 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    if (response.status === 429 && retries > 0) {
-                        console.warn("Rate limit hit. Retrying...");
-                        await delay(2000); // Wait before retrying
-                        return fetchWithRetry(prompt, retries - 1);
-                    }
                     throw new Error(errorData.error.message || "Failed to fetch response.");
                 }
 
                 const data = await response.json();
                 return data.choices[0].message.content.trim();
             } catch (error) {
-                if (retries > 0) {
-                    console.warn("Retrying due to error:", error.message);
-                    await delay(2000);
-                    return fetchWithRetry(prompt, retries - 1);
-                }
                 throw error;
             }
         }
@@ -227,10 +232,7 @@
 
             return messageDiv;
         }
-
-        function delay(ms) {
-            return new Promise((resolve) => setTimeout(resolve, ms));
-        }
     </script>
 </body>
 </html>
+
