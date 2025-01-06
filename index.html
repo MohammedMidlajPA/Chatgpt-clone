@@ -3,72 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Mode ChatGPT Clone</title>
+    <title>Chatbot with Model Selection</title>
     <style>
-        /* General Styling */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #0d1117;
+            color: #c9d1d9;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
         .chat-container {
             display: flex;
             flex-direction: column;
-            width: 100%;
-            max-width: 600px;
+            width: 90%;
+            max-width: 650px;
             height: 90vh;
-            background: #1e1e1e;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            max-height: 95%;
+            background: #161b22;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        /* Header */
         .chat-header {
-            background: #0d7377;
+            background: linear-gradient(90deg, #1e90ff, #6a5acd);
             color: #ffffff;
             padding: 15px;
-            text-align: center;
             font-size: 18px;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: relative;
         }
 
         .chat-header select {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            background: #121212;
+            background: #0d1117;
             color: #ffffff;
-            border: 1px solid #3e3e3e;
+            border: 1px solid #ffffff;
             border-radius: 5px;
-            padding: 5px;
+            padding: 5px 10px;
             font-size: 14px;
+            cursor: pointer;
         }
 
-        /* Chat History */
+        .chat-header button {
+            background: #0d1117;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-header button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
         .chat-history {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            background: #1c1c1c;
+            background: #0d1117;
+            scroll-behavior: smooth;
         }
 
         .chat-message {
             margin-bottom: 15px;
-            animation: slideUp 0.3s ease-in-out;
+            animation: slideUp 0.4s ease-out;
         }
 
         @keyframes slideUp {
             from {
-                transform: translateY(10px);
+                transform: translateY(20px);
                 opacity: 0;
             }
             to {
@@ -90,80 +106,76 @@
             padding: 12px 16px;
             border-radius: 15px;
             max-width: 75%;
-            line-height: 1.5;
+            line-height: 1.6;
             font-size: 14px;
         }
 
         .user-message .message-bubble {
-            background: #0d7377;
+            background: linear-gradient(90deg, #1e90ff, #00bcd4);
             color: #ffffff;
+            box-shadow: 0 2px 10px rgba(30, 144, 255, 0.5);
         }
 
         .bot-message .message-bubble {
-            background: #292929;
-            color: #dddddd;
+            background: #21262d;
+            color: #c9d1d9;
+            box-shadow: 0 2px 10px rgba(33, 38, 45, 0.5);
         }
 
-        /* Input Area */
         .chat-input {
             display: flex;
-            border-top: 1px solid #3e3e3e;
+            border-top: 1px solid #21262d;
             padding: 10px;
-            background: #1e1e1e;
+            background: #161b22;
         }
 
         .chat-input input {
             flex: 1;
             padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #3e3e3e;
-            background: #292929;
+            border-radius: 10px;
+            border: 1px solid #21262d;
+            background: #0d1117;
             color: #ffffff;
+            font-size: 14px;
         }
 
         .chat-input input::placeholder {
-            color: #757575;
+            color: #6e7681;
         }
 
         .chat-input button {
-            background: #0d7377;
+            background: linear-gradient(90deg, #6a5acd, #1e90ff);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 10px 20px;
             margin-left: 10px;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s ease-in-out;
+            font-size: 14px;
+            transition: background 0.3s, transform 0.2s;
         }
 
         .chat-input button:hover {
-            background: #099b9b;
-        }
-
-        /* Error Message */
-        .error-message {
-            color: #ff6b6b;
-            font-size: 14px;
-            margin: 10px;
-            text-align: center;
+            background: linear-gradient(90deg, #1e90ff, #6a5acd);
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            Dark Mode ChatGPT Clone
+            <span>Chatbot with Model Selection</span>
             <select id="modelSelector">
-                <option value="text-davinci-003">GPT-3.5 (Davinci)</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 (Turbo)</option>
                 <option value="gpt-4">GPT-4</option>
             </select>
+            <button onclick="startNewConversation()">New Conversation</button>
         </div>
         <div id="chatHistory" class="chat-history"></div>
         <div class="chat-input">
             <input id="userInput" type="text" placeholder="Type your message..." />
             <button onclick="sendMessage()">Send</button>
         </div>
-        <div id="errorMessage" class="error-message"></div>
     </div>
 
     <script>
@@ -173,28 +185,21 @@
         async function sendMessage() {
             const userInput = document.getElementById("userInput");
             const chatHistory = document.getElementById("chatHistory");
-            const errorMessage = document.getElementById("errorMessage");
-            const model = document.getElementById("modelSelector").value;
+            const selectedModel = document.getElementById("modelSelector").value;
 
-            errorMessage.textContent = ""; // Clear error messages
+            if (!userInput.value.trim()) return;
 
-            if (!userInput.value.trim()) {
-                errorMessage.textContent = "Please enter a message.";
-                return;
-            }
-
-            // Add user's message to the chat
+            // Display user's message
             const userMessage = userInput.value.trim();
             appendMessage(userMessage, "user-message");
             conversationHistory.push({ role: "user", content: userMessage });
-
             userInput.value = "";
 
             // Show "Typing..." indicator
             const botTyping = appendMessage("Typing...", "bot-message");
 
             try {
-                // Call OpenAI API
+                // Fetch response from OpenAI API
                 const response = await fetch("https://api.openai.com/v1/chat/completions", {
                     method: "POST",
                     headers: {
@@ -202,31 +207,27 @@
                         Authorization: `Bearer ${API_KEY}`,
                     },
                     body: JSON.stringify({
-                        model: model,
+                        model: selectedModel,
                         messages: conversationHistory,
-                        max_tokens: 150,
+                        max_tokens: 200,
                         temperature: 0.7,
                     }),
                 });
 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
                 }
 
                 const data = await response.json();
                 const botResponse = data.choices[0].message.content.trim();
 
-                // Add bot's response to the chat
+                // Replace "Typing..." with bot's actual response
                 botTyping.remove();
-                appendMessage(formatResponse(botResponse), "bot-message");
+                appendMessage(botResponse, "bot-message");
                 conversationHistory.push({ role: "assistant", content: botResponse });
-
-                // Save conversation to local storage
-                saveConversationHistory();
             } catch (error) {
-                console.error("Error:", error);
                 botTyping.textContent = "Oops! Something went wrong.";
-                errorMessage.textContent = error.message;
+                console.error("Error:", error);
             }
         }
 
@@ -236,7 +237,7 @@
             messageDiv.className = `chat-message ${className}`;
             const bubbleDiv = document.createElement("div");
             bubbleDiv.className = "message-bubble";
-            bubbleDiv.innerHTML = text; // Allow formatted HTML output
+            bubbleDiv.textContent = text;
             messageDiv.appendChild(bubbleDiv);
             chatHistory.appendChild(messageDiv);
 
@@ -246,34 +247,11 @@
             return messageDiv;
         }
 
-        function formatResponse(response) {
-            // Format the response with simple paragraph tags for better readability
-            return response
-                .split("\n")
-                .map((line) => `<p>${line}</p>`)
-                .join("");
+        function startNewConversation() {
+            const chatHistory = document.getElementById("chatHistory");
+            chatHistory.innerHTML = ""; // Clear chat history
+            conversationHistory.length = 0; // Reset conversation
         }
-
-        function saveConversationHistory() {
-            localStorage.setItem("conversationHistory", JSON.stringify(conversationHistory));
-        }
-
-        function loadConversationHistory() {
-            const savedHistory = localStorage.getItem("conversationHistory");
-            if (savedHistory) {
-                const history = JSON.parse(savedHistory);
-                history.forEach((msg) => {
-                    appendMessage(
-                        formatResponse(msg.content),
-                        msg.role === "user" ? "user-message" : "bot-message"
-                    );
-                });
-                conversationHistory.push(...history);
-            }
-        }
-
-        // Load saved conversation on page load
-        document.addEventListener("DOMContentLoaded", loadConversationHistory);
     </script>
 </body>
 </html>
